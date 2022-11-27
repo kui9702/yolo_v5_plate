@@ -1,0 +1,9 @@
+# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]
+train: /mnt/e/BaiduNetdiskDownload/coco/images/train2017/  # 16551 images
+val: /mnt/e/BaiduNetdiskDownload/coco/images/val2017/  # 4952 images
+
+# number of classes
+nc: 1
+
+# class names
+names: [ 'plate']

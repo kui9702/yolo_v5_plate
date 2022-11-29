@@ -46,10 +46,10 @@ def points2yolo(size, points):
     return rbx, rby, lbx, lby, ltx, lty, rtx, rty
 
 def get_points(file1):
-    points = os.path.basename(file1).split("-")[3] # 386&473_177&454_154&383_363&402
+    points = os.path.basename(file1).split("-")[3] # 386&473_177&454_154&383_363&402 rb lb lt rt
     points = points.split("_")
     rb = points[0].split("&") # rb right_bottom
-    lb = points[1].split("&")
+    lb = points[1].split("&") # 
     lt = points[2].split("&")
     rt = points[3].split("&")
     return int(rb[0]), int(rb[1]), int(lb[0]), int(lb[1]), int(lt[0]), int(lt[1]), int(rt[0]), int(rt[1])

@@ -11,7 +11,7 @@ Lock = threading.Lock()
 a_finish_total = 0
 a_files_total = 0
 
-model_path = r'/mnt/d/code/python/code/202211/YOLOv5-Lite-kile/weights/best.pt'
+model_path = r'/home/kile/files/yolo_v5_plate/runs/train/exp15/weights/best.pt'
 # Load model
 img_size = 320
 conf_thres = 0.8
@@ -120,7 +120,7 @@ def get_cor(pred, orgimg, img, image_path=None):
                 dst = warpimage(orgimg, points)
                 if image_path is not None:
                     # aa_path = r"/mnt/e/BaiduNetdiskDownload/crnn_test_cv"
-                    aa_path = r"/mnt/d/code/python/code/202211/temp_data"
+                    aa_path = r"/mnt/e/data/temp_data"
                     os.makedirs(aa_path, exist_ok=True)
                     save_path = os.path.join(aa_path, os.path.basename(image_path))
                     cv2.imwrite(save_path, dst)
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # get_result(r"/mnt/e/code/python/1/202211/yolov5-car-plate-master/data/images/0128-16_14-333&555_445&651-445&618_335&651_333&588_443&555-0_0_32_33_26_13_25-103-20.jpg")
 
     import glob, tqdm, random
-    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2019/ccpd_base/*.jpg")   # r"/mnt/e/BaiduNetdiskDownload/crnn_test_cv_ori/*.jpg"
+    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/test/*.jpg")   # r"/mnt/e/BaiduNetdiskDownload/crnn_test_cv_ori/*.jpg"
     files = random.sample(files, len(files)) 
     for i in tqdm.tqdm(files):
         # if os.path.isfile(r"./result_warp_kile.jpg"):

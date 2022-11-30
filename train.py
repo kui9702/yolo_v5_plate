@@ -470,15 +470,15 @@ def train(hyp, opt, device, tb_writer=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default=r"/home/kile/files/yolo_v5_plate/runs/train/exp10/weights/last.pt", help='initial weights path')
+    parser.add_argument('--weights', type=str, default=r"None.a", help='initial weights path')
     parser.add_argument('--cfg', type=str, default=r'/home/kile/files/yolo_v5_plate/models/v5Lite-e.yaml', help='model.yaml path')
     parser.add_argument('--data', type=str, default=r'/home/kile/files/yolo_v5_plate/data/plat.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default=r'/home/kile/files/yolo_v5_plate/data/hyp.scratch.yaml', help='hyperparameters path')
     parser.add_argument('--epochs', type=int, default=160)
-    parser.add_argument('--batch-size', type=int, default=128, help='total batch size for all GPUs')
+    parser.add_argument('--batch-size', type=int, default=140, help='total batch size for all GPUs')
     parser.add_argument('--img-size', nargs='+', type=int, default=[320, 320], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
-    parser.add_argument('--resume', nargs='?', const=True, default=True, help='resume most recent training')
+    parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
     parser.add_argument('--nosave', action='store_true', help='only save final checkpoint')
     parser.add_argument('--notest', action='store_true', help='only test final epoch')
     parser.add_argument('--noautoanchor', action='store_true', help='disable autoanchor check')

@@ -104,7 +104,7 @@ def write_label():
 
 if __name__ == "__main__":
     # 挑选16000张图片做训练 测试 验证集
-    select_dataset()
+    # select_dataset()
 
     # 测试图片坐标
     # file1 = r"/mnt/e/BaiduNetdiskDownload/coco/0051-0_0-328&521_439&560-439&559_328&560_328&522_439&521-0_0_27_8_26_31_30-115-31.jpg"
@@ -116,6 +116,6 @@ if __name__ == "__main__":
     # cv2.destroyAllWindows()
 
     # 分离数据集
-    split_data()
+    # split_data()
 
     write_label()

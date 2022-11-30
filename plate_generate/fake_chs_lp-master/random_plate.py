@@ -290,19 +290,41 @@ class Draw:
     def rand_reduce(val):
         return int(np.random.random() * val)
 
-    def get_ture_cor(self, points):  # return rb lb lt rt
-        points = np.array(points)
+    def get_ture_cor(self, points, x1, y1, w, h):  # return rb lb lt rt
+        if len(points) != 4:
+            return None, None
+        else:
+            points = np.array(points)
+            points = points.reshape((4, -1))
         xmin, xmax = np.min(points[:, 0]), np.max(points[:, 0])
         ymin, ymax = np.min(points[:, 1]), np.max(points[:, 1])
-        return [xmax, ymax, xmin, ymax, xmin, ymin, xmax, ymin]
+        for i in points:
+            if int(i[0]) + w / 5 * 3 < xmax:
+                if i[1] + h / 5 * 3 < ymax:
+                    ltx = i[0]
+                    lty = i[1]
+                else:
+                    lbx = i[0]
+                    lby = i[1]
+            else:
+                if i[1] + h / 5 * 3 < ymax:
+                    rtx = i[0]
+                    rty = i[1]
+                else:
+                    rbx = i[0]
+                    rby = i[1]
+        try:
+            return [rbx+x1, rby+y1, lbx+x1, lby+y1, ltx+x1, lty+y1, rtx+x1, rty+y1], [xmin+x1, ymin+y1, xmax+x1, ymax+y1]
+        except:
+            return None, None
 
     def add_pure_image(self, env, img, get_cor=False):
         if env is None:
             env = cv2.imread(
-                r"yolo_v5_plate/plate_generate/fake_chs_lp-master/background/result_kile.jpg")
+                r"/home/kile/files/yolo_v5_plate/plate_generate/fake_chs_lp-master/background/result_kile.jpg")
             env = cv2.resize(env, (random.randint(
                 img.shape[0]*10, img.shape[0]*15), random.randint(img.shape[0]*10, img.shape[0]*15)))
-        x1 = random.randint(0, env.shape[1]-img.shape[1])
+        x1 = random.randint(0, env.shape[1] - img.shape[1])
         y1 = random.randint(0, env.shape[0] - img.shape[0])
         roi = env[y1:img.shape[0]+y1, x1:x1+img.shape[1]]
 
@@ -324,16 +346,29 @@ class Draw:
         cnt_len = cv2.arcLength(contours[0], True)
         cnt = cv2.approxPolyDP(contours[0], 0.02*cnt_len, True)
         points = []
-        for i in cnt:
-            i = i[0]
-            i[0], i[1] = i[0] + x1, i[1] + y1
-            points.append([i[0], i[1]])
-        points = self.get_ture_cor(points)
-        bbox = [x1, y1, x1+img.shape[1], img.shape[0]+y1]
+        points, bbox = self.get_ture_cor(cnt, x1, y1, img.shape[1], img.shape[0])
         if not get_cor:
             return env
         else:
             return env, bbox, points
+
+
+def show_results(img, xyxy, landmarks):
+    imgcopy = img.copy()
+    cv2.rectangle(imgcopy, (int(xyxy[0]), int(xyxy[1])), (int(
+        xyxy[2]), int(xyxy[3])), (0, 255, 0), lineType=cv2.LINE_AA)
+
+    clors = [(255, 0, 0), (0, 255, 0), (0, 0, 255),
+             (255, 255, 0), (0, 255, 255)]
+
+    for i in range(0, 8, 2):
+        point_x = int(landmarks[i])
+        point_y = int(landmarks[i+1])
+        cv2.circle(imgcopy, (point_x, point_y), 2, clors[0], -1)
+    aa_path = r"/mnt/e/data/temp_data"
+    os.makedirs(aa_path, exist_ok=True)
+    save_path = os.path.join(aa_path, str(random.randint(0, 10000))+".jpg")
+    cv2.imwrite(save_path, imgcopy)
 
 
 def gen_all_plate(draw, save_dir_, index, get_cor=False):
@@ -349,6 +384,9 @@ def gen_all_plate(draw, save_dir_, index, get_cor=False):
     image_path = os.path.join(save_dir_, label+"_"+str(index)+".jpg")
     if get_cor:
         plate, box, points = draw.add_pure_image(None, plate, get_cor)
+        if points == None:
+            return
+        show_results(plate, box, points)
         os.makedirs(save_dir_+"_labels", exist_ok=True)
         label_path = os.path.join(
             save_dir_+"_labels", label+"_"+str(index)+".txt")

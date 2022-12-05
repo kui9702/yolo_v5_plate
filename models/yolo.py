@@ -60,15 +60,15 @@ class Detect(nn.Module):
                     y[..., 0:2] = (y[..., 0:2] * 2. - 0.5 + self.grid[i]) * self.stride[i]  # xy
                     y[..., 2:4] = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i]  # wh
                     #landmarks
-                    y[..., 5:self.key_point_nums] = y[..., 5:self.key_point_nums] * self.key_point_nums - 4
-                    for l_index in range(5, self.key_point_nums + 3, 2):
+                    y[..., 5:self.key_point_nums+5] = y[..., 5:self.key_point_nums+5] * self.key_point_nums - 4
+                    for l_index in range(5, self.key_point_nums + 5, 2):
                         y[..., l_index: l_index+2] = y[..., l_index: l_index+2] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * self.stride[i]
                 else:
                     xy = (y[..., 0:2] * 2. - 0.5 + self.grid[i]) * self.stride[i]  # xy
                     wh = (y[..., 2:4] * 2) ** 2 * self.anchor_grid[i].data  # wh
                     #landmarks
-                    y[..., 5:self.key_point_nums] = y[..., 5:self.key_point_nums] * self.key_point_nums - 4
-                    for l_index in range(5, self.key_point_nums + 3, 2):
+                    y[..., 5:self.key_point_nums+5] = y[..., 5:self.key_point_nums+5] * self.key_point_nums - 4
+                    for l_index in range(5, self.key_point_nums + 5, 2):
                         y[..., l_index: l_index+2] = y[..., l_index: l_index+2] * self.anchor_grid[i] + self.grid[i].to(x[i].device) * self.stride[i]
                     y = torch.cat((xy, wh, y[..., 4:]), -1)
                 z.append(y.view(bs, -1, self.no))
@@ -76,7 +76,7 @@ class Detect(nn.Module):
 
         return x if self.training else (torch.cat(z, 1), torch.cat(logits_, 1), x)
 
-    def cat_forward(self, x):
+    def cat_forward(self, x):   # onnx export 可以使用
         z = []  # inference output
         for i in range(self.nl):
             x[i] = self.m[i](x[i])  # conv

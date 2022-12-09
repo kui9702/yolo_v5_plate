@@ -11,10 +11,10 @@ Lock = threading.Lock()
 a_finish_total = 0
 a_files_total = 0
 
-model_path = r'/home/kile/files/yolo_v5_plate/runs/train/exp15/weights/best.pt'
+model_path = r'/home/kile/files/yolo_v5_plate/runs/train/exp20/weights/best.pt'
 # Load model
 img_size = 320
-conf_thres = 0.8
+conf_thres = 0.6
 iou_thres = 0.3
 device = torch.device("cpu")
 
@@ -89,6 +89,20 @@ def warpimage(img, pts1):
     M = cv2.getPerspectiveTransform(pts1,pts2)
     dst = cv2.warpPerspective(img,M,(400,200))
     return dst
+
+def from_file_name_check_result(path):
+    from kile_utils.prepare import get_cor, get_points
+    rbx, rby, lbx, lby, ltx, lty, rtx, rty = get_points(os.path.basename(path))
+    orgimg = cv2.imread(path)
+    points = np.array((rbx, rby, lbx, lby, ltx, lty, rtx, rty), dtype=np.float32).reshape(-1, 2)
+    # print('points: ', points)
+    dst = warpimage(orgimg, points)
+    if path is not None:
+        # aa_path = r"/mnt/e/BaiduNetdiskDownload/crnn_test_cv"
+        aa_path = r"/mnt/e/data/temp_data"
+        os.makedirs(aa_path, exist_ok=True)
+        save_path = os.path.join(aa_path, os.path.basename(path))
+        cv2.imwrite(save_path, dst)
 
 def get_cor(pred, orgimg, img, image_path=None):
     for i, det in enumerate(pred):  # detections per image
@@ -177,15 +191,28 @@ if __name__ == '__main__':
     # get_result(r"/mnt/e/code/python/1/202211/yolov5-car-plate-master/data/images/0128-16_14-333&555_445&651-445&618_335&651_333&588_443&555-0_0_32_33_26_13_25-103-20.jpg")
 
     import glob, tqdm, random
-    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/test/*.jpg")   # r"/mnt/e/BaiduNetdiskDownload/crnn_test_cv_ori/*.jpg"
-    files = random.sample(files, len(files)) 
-    for i in tqdm.tqdm(files):
+    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/test/*.jpg")   # r"/mnt/e/data/ori_plate/*.jpg" /mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/test/*.jpg
+    files = random.sample(files, len(files))     
+    for i in tqdm.tqdm(files): 
         # if os.path.isfile(r"./result_warp_kile.jpg"):
         #     os.remove(r"./result_warp_kile.jpg")
         # if os.path.isfile(r"./result_kile.jpg"):
         #     os.remove(r"./result_kile.jpg")
         get_result(i)
+        print("")
     # a_files_total = len(files)
     # with ThreadPoolExecutor(max_workers=None) as t:
     #     for i in files:
     #         t.submit(get_result, i)
+
+
+    # import glob, tqdm, random
+    # files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2019/ccpd_base/*.jpg")   # r"/mnt/e/data/ori_plate/*.jpg" /mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/test/*.jpg
+    # files = random.sample(files, len(files))     
+    # for i in tqdm.tqdm(files): 
+    #     # if os.path.isfile(r"./result_warp_kile.jpg"):
+    #     #     os.remove(r"./result_warp_kile.jpg")
+    #     # if os.path.isfile(r"./result_kile.jpg"):
+    #     #     os.remove(r"./result_kile.jpg")
+    #     from_file_name_check_result(i)
+    #     print("")

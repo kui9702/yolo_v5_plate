@@ -330,12 +330,28 @@ class Draw:
 
         # 创建掩膜
         img2gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite("./temp.jpg", img2gray)
+        a = img2gray.copy()
+        a[a<65]=255
+        a[a>90]=255
+        a[a!=255] = True
+        a[a==255] = False
+        a = np.array(a, dtype=bool)
+        # cv2.imwrite("./temp.jpg", a)
         ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
+        # cv2.imwrite("./temp.jpg", mask)
         mask_inv = cv2.bitwise_not(mask)
+        # cv2.imwrite("./temp.jpg", mask_inv)
 
         # 保留除logo外的背景
         img1_bg = cv2.bitwise_and(roi, roi, mask=mask_inv)
+        # cv2.imwrite("./temp.jpg", img1_bg)
         dst = cv2.add(img1_bg, img)  # 进行融合
+        # cv2.imwrite("./temp.jpg", dst)
+        # dst = cv2.add(dst, a)
+        dst[a]=[0,0,0]
+        cv2.imwrite("./temp.jpg", dst)
+        # dst = cv2.add(dst, a)
         env[y1:img.shape[0]+y1, x1:x1+img.shape[1]] = dst  # 融合后放在原图上
 
         # 添加 四个顶点坐标
@@ -386,7 +402,7 @@ def gen_all_plate(draw, save_dir_, index, get_cor=False):
         plate, box, points = draw.add_pure_image(None, plate, get_cor)
         if points == None:
             return
-        show_results(plate, box, points)
+        # show_results(plate, box, points)
         os.makedirs(save_dir_+"_labels", exist_ok=True)
         label_path = os.path.join(
             save_dir_+"_labels", label+"_"+str(index)+".txt")
@@ -401,3 +417,17 @@ def gen_all_plate(draw, save_dir_, index, get_cor=False):
     os.makedirs(save_dir_, exist_ok=True)
     cv2.imencode('.jpg', plate)[1].tofile(image_path)
     # cv2.imwrite(image_path, plate)
+    
+    
+    #验证数据是否正确
+    # import numpy as np
+    # # points = np.array(points).reshape(2,-1)
+    # tl = 1 or round(0.2 * (h + w) / 2) + 1  # line/font thickness
+    # for i in range(4):
+    #     point_x = int(points[2 * i])
+    #     point_y = int(points[2 * i + 1])
+    #     cv2.circle(plate, (point_x, point_y), tl+1, (255,0,0), -1)
+    # aa_path = r"/mnt/e/data/temp_data"
+    # os.makedirs(aa_path, exist_ok=True)
+    # save_path = os.path.join(aa_path, os.path.basename(image_path))
+    # cv2.imencode('.jpg', plate)[1].tofile(save_path)

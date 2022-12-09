@@ -96,7 +96,12 @@ class Draw:
             return None
 
     def _draw_char(self, ch):
-        return cv2.resize(self._font[ch], (43 if ch.isupper() or ch.isdigit() else 45, 90))
+        image = self._font[ch]
+        temp = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        temp = np.array(temp, dtype=bool)
+        image[~temp]=[79, 79, 79]
+        # cv2.imwrite("./temp.jpg", image)
+        return cv2.resize(image, (43 if ch.isupper() or ch.isdigit() else 45, 90))
 
     def _draw_fg(self, plate):
         img = np.array(Image.new("RGB", (480, 140), (255, 255, 255)))

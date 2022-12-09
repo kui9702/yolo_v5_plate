@@ -23,7 +23,7 @@ class Draw:
         draw = ImageDraw.Draw(img)
         draw.text(
             (0, -11 if ch.isupper() or ch.isdigit() else 3), ch,
-            fill = (0, 0, 0),
+            fill = (79, 79, 79),
             font = self._font[0 if ch.isupper() or ch.isdigit() else 1]
         )
         if img.width > 45:

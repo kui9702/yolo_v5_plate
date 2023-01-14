@@ -5,15 +5,27 @@ import shutil
 import tqdm
 import cv2
 
+blue_path = r"/mnt/CCPD2020/ccpd_green/train/*.jpg"      # 蓝牌路径
+green_path = r"/mnt/CCPD2020/ccpd_green/train/*.jpg"       # 绿牌路径
+save_dir = r"/mnt/ai_train/ccpd"                    # 保存位置
+blue_nums = 1000                                    # 选择数量 None 为全部
+green_nums = 0
+tr_percent = 0.7                                    # 数据集比例
+te_percent = 0.85
+va_percent = 1
+
 def select_dataset():
-    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2019/ccpd_*/*.jpg")
+    global blue_path, green_path, save_dir, green_nums, blue_nums
+    files = glob.glob(blue_path)
     files = random.sample(files, len(files))  #355013 need10000
 
-    green_files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/CCPD2020/ccpd_green/train/*.jpg")
+    green_files = glob.glob(green_path)
     green_files = random.sample(green_files, len(green_files))  #5769 need2000
-
-    total_files = files[:1200*2]+green_files[:400*2]
-    save_dir = r"/mnt/e/BaiduNetdiskDownload/coco"
+    if blue_nums is None:
+        blue_nums = len(files)
+    if green_nums is None:
+        green_nums = len(green_files)
+    total_files = files[:blue_nums]+green_files[:green_nums]
     os.makedirs(save_dir, exist_ok=True)
     for i in tqdm.tqdm(total_files):
         shutil.copyfile(i, os.path.join(save_dir, os.path.basename(i)))
@@ -75,12 +87,13 @@ def copy_file(file_lists, path, str_):
 
 
 def split_data():
-    base_dir = r"/mnt/e/BaiduNetdiskDownload/coco"
+    global save_dir
+    base_dir = save_dir
     files = glob.glob(os.path.join(base_dir, "*.jpg"))
     files = random.sample(files, len(files))
-    copy_file(files[:1100*2], base_dir, "train2017")
-    copy_file(files[1100*2:1400*2], base_dir, "val2017")
-    copy_file(files[1400*2:1600*2], base_dir, "test2017")
+    copy_file(files[:int(len(files)*tr_percent)], base_dir, "train2017")
+    copy_file(files[int(len(files)*tr_percent):int(len(files)*va_percent)], base_dir, "val2017")
+    copy_file(files[int(len(files)*va_percent):], base_dir, "test2017")
 
 def get_cor_from_filename(path):
     x1, y1, x2, y2 = get_cor(path)
@@ -97,14 +110,15 @@ def get_cor_from_filename(path):
         ff.write(f"{0} {x} {y} {w} {h} {rbx} {rby} {lbx} {lby} {ltx} {lty} {rtx} {rty}")
 
 def write_label():
-    files = glob.glob(r"/mnt/e/BaiduNetdiskDownload/coco/images/*/*.jpg")
+    global save_dir
+    files = glob.glob(os.path.join(save_dir, "images", "*", "*.jpg"))  # r"/mnt/e/BaiduNetdiskDownload/coco/images/*/*.jpg"
     for i in tqdm.tqdm(files):
         get_cor_from_filename(i)
 
 
 if __name__ == "__main__":
     # 挑选16000张图片做训练 测试 验证集
-    # select_dataset()
+    select_dataset()
 
     # 测试图片坐标
     # file1 = r"/mnt/e/BaiduNetdiskDownload/coco/0051-0_0-328&521_439&560-439&559_328&560_328&522_439&521-0_0_27_8_26_31_30-115-31.jpg"
@@ -113,9 +127,9 @@ if __name__ == "__main__":
 
     # cv2.imshow("img", image)
     # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    # cv2.destroyAllmnts()
 
     # 分离数据集
-    # split_data()
+    split_data()
 
     write_label()
